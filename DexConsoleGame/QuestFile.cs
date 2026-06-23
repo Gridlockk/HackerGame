@@ -1,7 +1,26 @@
-﻿public class QuestData
+﻿using System.Text.Json;
+
+public class QuestData
 {
     public string StartServer { get; set; }
     public Dictionary<string, Server> Servers { get; set; }
+    
+    public static QuestData Load()
+    {
+        string json = File.ReadAllText("quest.json");
+
+        QuestData? data = JsonSerializer.Deserialize<QuestData>(
+            json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+        if (data == null)
+            throw new Exception("Не удалось загрузить quest.json");
+
+        return data;
+    }
 }
 
 public class Server
