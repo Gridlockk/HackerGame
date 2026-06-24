@@ -4,7 +4,7 @@ using System.Text.Json;
 class GameState
 {
     public string CurrentDir { get; set; } = "/";          // где стоит игрок
-    public int Level { get; set; } = 2;                     // текущий уровень сюжета
+    public int Level { get; set; } = 1;                     // текущий уровень сюжета
     public int Score { get; set; } = 0;                     // очки
     public List<string> FoundKeys { get; set; } = new();    // найденные ключи и пароли
     public HashSet<string> UnlockedFiles { get; set; } = new(); // что уже взломано и доступно

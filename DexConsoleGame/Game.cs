@@ -18,8 +18,10 @@ public class Game
     {
         data = QuestData.Load();
         state = GameState.Load();
+        
+        
     }
-
+    
 
     public void Run()
     {
@@ -86,7 +88,13 @@ public class Game
         var relative = data.Servers.FirstOrDefault(serverName => serverName.Value.Address == arg);
         if (relative.Value == null)
         {
-            AnsiConsole.Markup($"\n[red] Failed connection! [/] ");
+            AnsiConsole.Markup($"[red]Server not found! [/] ");
+            return;
+        }
+
+        if (relative.Value.Locked && !state.HackedServers.Contains(arg))
+        {
+            AnsiConsole.Markup($"[red]Connection blocked - server secured [/] ");
             return;
         }
 
@@ -379,29 +387,76 @@ public class Game
         AnsiConsole.Markup($"\n[green]Servers:[/] ");
         foreach (var server in GetVisibleServers())
         {
-            AnsiConsole.Markup($"\n[green]{server.Address}[/] ");
+            if (server.Locked && !state.HackedServers.Contains(server.Address))
+                AnsiConsole.Markup($"\n[green]{server.Address} \t STATUS: [/][red]PROTECTED[/] ");
+            else if(server.Locked && state.HackedServers.Contains(server.Address))
+                AnsiConsole.Markup($"\n[green]{server.Address} \t STATUS: [/][green]Hacked[/] ");
+            else
+                AnsiConsole.Markup($"\n[green]{server.Address} \t STATUS: OPEN[/] ");
         }
 
     }
 
     private void Hack(string arg)
     {
-        var servers = data.Servers.Values
-            .Where(server => server.VisibleFromLevel <= state.Level).ToList();
+        // 1. сервер есть в видимости 
+        // 2. сервер защищен паролем
+        // 3. север не был ранее взломан
+        var server = data.Servers.Values
+            .FirstOrDefault(server => server.VisibleFromLevel <= state.Level && server.Address == arg);
 
-        foreach (var server in servers)
+        if (server != null)
         {
-            if(server.Locked)
+            if (server.Locked)
+            {
                 if (!state.HackedServers.Contains(arg))
                 {
+                    AnsiConsole.Markup($"\n[green]Enter password: > [/] ");
                     var password = Console.ReadLine();
+                    
+
+                    AnsiConsole.Progress()
+                        .Start(ctx =>
+                        {
+                            var task = ctx.AddTask("Hacking....", maxValue: 100);
+
+                            while (!ctx.IsFinished)
+                            {
+                                task.Increment(1);
+
+                                Thread.Sleep(10);
+                            }
+                        });
+                    
                     if (server.Password == password)
                     {
+                        AnsiConsole.Markup($"[green]  Hack successful [/]");
+
                         state.HackedServers.Add(arg);
-                        
+                    }
+                    else
+                    {
+                        AnsiConsole.Markup($"[red]  Access deny - Incorrect password [/]");
                     }
                 }
+                else
+                {
+                    AnsiConsole.Markup($"[red]  Server has been hacked before [/]");
+                    
+                }
+            }
+            else
+            {
+                AnsiConsole.Markup($"[red]  Server has no password [/]");
+            }
 
+          
+            
+
+        }
+        else
+        {
+            AnsiConsole.Markup($"[red]  Server not found[/]");
         }
     }
     
