@@ -18,8 +18,6 @@ public class Game
     {
         data = QuestData.Load();
         state = GameState.Load();
-        
-        
     }
     
 
@@ -28,7 +26,7 @@ public class Game
         WelcomeMessage();
 
         running = true;
-        while (true)
+        while (running)
         {
             AnsiConsole.Markup($"\n[green]root@{state.CurrentServer} > [/] ");
 
@@ -116,60 +114,54 @@ public class Game
                 }
             });
     }
-
+    
+   
+    
     private Server GetCurrentServer()
     {
         return data.Servers[state.CurrentServer];
     }
 
+    
     private void ListFiles()
     {
-        var files = GetCurrentServer()
-            .Files
-            .Where(f => f.VisibleFromLevel <= state.Level);
-
-        HashSet<string> folders = new();
-
-        foreach (var file in files)
+        AnsiConsole.MarkupLine($"[blue]Directory: {state.CurrentDir}[/]");
+        for (int i = 0; i < 20; i++)
         {
-            string relative;
-
-            if (state.CurrentDir == "/")
+            AnsiConsole.Write("-");
+        }
+        AnsiConsole.WriteLine();
+        var files = GetVisibleFiles();
+        var folders = GetVisibleFolders();
+        
+        if(folders != null)
+        {
+            foreach (var folder in folders)
             {
-                relative = file.Path.TrimStart('/');
+                AnsiConsole.MarkupLine($"[blue]{folder}/[/]");
             }
-            else
+        }
+
+        if (files != null)
+        {
+            foreach (var file in files)
             {
-
-                if (!file.Path.StartsWith(state.CurrentDir + "/"))
-                    continue;
-
-                relative = file.Path.Substring(state.CurrentDir.Length + 1);
-            }
-
-            string[] parts = relative.Split('/');
-
-            if (parts.Length == 1)
-            {
-                // файл текущей папки
                 if (file.Encrypted)
-                    AnsiConsole.MarkupLine($"[red][[ENC]] {parts[0]}[/]");
+                {
+                    if (!state.UnlockedFiles.Contains(file.Path))
+                        AnsiConsole.MarkupLine($"[red][[ENC]]{file.Path.Split('/').Last()}[/]");
+                    else
+                    {
+                        AnsiConsole.MarkupLine($"[yellow]{file.Path.Split('/').Last()}[/]");
+                    }
+                }
                 else
-                    AnsiConsole.MarkupLine(parts[0]);
-            }
-            else
-            {
-                // папка
-                folders.Add(parts[0]);
+                    AnsiConsole.MarkupLine(file.Path.Split('/').Last());
             }
         }
-
-        foreach (var folder in folders)
-        {
-            AnsiConsole.MarkupLine($"[blue]{folder}/[/]");
-        }
+        
     }
-
+    
     private void ChangeDir(string arg)
     {
         //путь не имеет вид / { /home/pol/oplolon/  }
@@ -194,106 +186,32 @@ public class Game
                 state.CurrentDir = "/";
         }
 
-        var files = GetCurrentServer()
-            .Files
-            .Where(f => f.VisibleFromLevel <= state.Level);
+        var folders = GetVisibleFolders();
 
-        HashSet<string> folders = new();
-
-
-        // /home/notes.txt     /getc/34.txt
-        // проверка есть ли вооьще такая папка на этом уровне
-
-
-        foreach (var file in files)
-        {
-            string relative;
-
-            if (state.CurrentDir == "/")
-            {
-                relative = file.Path.TrimStart('/');
-            }
-            else
-            {
-                if (!file.Path.StartsWith(state.CurrentDir + "/"))
-                    continue;
-
-                relative = file.Path.Substring(state.CurrentDir.Length + 1);
-            }
-
-            string[] parts = relative.Split('/');
-            // home/  notex.txt 
-            if (parts.Length > 1)
-            {
-                folders.Add(parts[0]);
-            }
-
-        }
-
-        if (folders.Contains(arg))
-        {
-            if (arg.StartsWith("/"))
-                state.CurrentDir = arg;
-            else
-                state.CurrentDir = "/" + arg;
-
-        }
-        else
+        if (!folders.Contains(arg))
         {
             AnsiConsole.MarkupLine($"[red]Path unknown: {arg}[/]");
             return;
         }
+        
+        // /home/notes.txt     /getc/34.txt
+        // проверка есть ли вооьще такая папка на этом уровне
 
-    }
 
-    private void OpenFile(string arg)
-    {
-        //  /home/rety.txt    /home/logs/log.txt    /home/test/test.txt
-        var files = GetCurrentServer()
-            .Files
-            .Where(f => f.VisibleFromLevel <= state.Level);
-
-        foreach (var file in files)
+        if (state.CurrentDir == "/")
         {
-            string relative;
-
-            if (state.CurrentDir == "/")
-            {
-                relative = file.Path.TrimStart('/');
-            }
-            else
-            {
-
-                if (!file.Path.StartsWith(state.CurrentDir + "/"))
-                    continue;
-
-                relative = file.Path.Substring(state.CurrentDir.Length + 1);
-            }
-
-            string[] parts = relative.Split('/');
-
-            if (parts.Length == 1 && parts[0] == arg)
-            {
-                if (file.Encrypted)
-                {
-                    if (state.UnlockedFiles.Contains(file.Path))
-                        AnsiConsole.MarkupLine($"[blue]{file.Content}[/]");
-                    else
-                        AnsiConsole.MarkupLine($"[red]File encrypted!!! [/]");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine($"[blue]{file.Content}[/]");
-                }
-
-                return;
-            }
+            state.CurrentDir = "/" + arg;
         }
-    }
+        else
+        {
+            state.CurrentDir = state.CurrentDir + "/" + arg;
+        }
 
-    private void Decrypt(string arg)
+    }
+    private List<string> GetVisibleFolders()
     {
-        var files = GetCurrentServer().Files.Where(file => file.VisibleFromLevel <= state.Level);
+        var files = GetCurrentServer().Files
+            .Where(f => f.VisibleFromLevel <= state.Level);
 
         HashSet<string> folders = new();
 
@@ -307,7 +225,6 @@ public class Game
             }
             else
             {
-
                 if (!file.Path.StartsWith(state.CurrentDir + "/"))
                     continue;
 
@@ -316,45 +233,151 @@ public class Game
 
             string[] parts = relative.Split('/');
 
-            if (parts.Length == 1 && parts[0] == arg)
+            // если есть вложенность → значит это папка
+            if (parts.Length > 1)
             {
-                AnsiConsole.Markup($"[green]Input Key > [/]");
-                string decryptedText = Cipher.Decrypt(file.Content, int.Parse(Console.ReadLine()));
-                state.UnlockedFiles.Add(file.Path);
-                state.Level++;
-                CheckLevelUp();
-                AnsiConsole.MarkupLine($"[blue] {decryptedText} [/]");
-                return;
-
+                folders.Add(parts[0]);
             }
         }
 
-        AnsiConsole.MarkupLine($"[red]File not found [/]");
-
+        return folders.ToList();
     }
+    private List<QuestFile> GetVisibleFiles()
+    {
+        return GetCurrentServer().Files
+            .Where(f => f.VisibleFromLevel <= state.Level)
+            .Where(f =>
+            {
+                string dir = state.CurrentDir == "/" ? "/" : state.CurrentDir + "/";
+
+                if (dir == "/")
+                {
+                    // только файлы в корне (без вложенных папок)
+                    return !f.Path.Substring(1).Contains("/");
+                }
+
+                // файл должен быть внутри текущей папки
+                if (!f.Path.StartsWith(dir))
+                    return false;
+
+                string relative = f.Path.Substring(dir.Length);
+
+                // ❗ запрещаем вложенные уровни
+                return !relative.Contains("/");
+            })
+            .ToList();
+    }
+    
+    private void OpenFile(string arg)
+    {
+        //  /home/rety.txt    /home/logs/log.txt    /home/test/test.txt
+        
+        var file = GetVisibleFiles()
+            .FirstOrDefault(f => f.Path.Split('/').Last() == arg);
+        
+        if (file == null)
+        {
+            AnsiConsole.MarkupLine("[red]File not found[/]");
+            return;
+        }
+        
+        if (file.Encrypted)
+        {
+            if (!state.UnlockedFiles.Contains(file.Path))
+            {
+                AnsiConsole.MarkupLine("[red]File encrypted!!![/]");
+                return;
+            }
+            
+            AnsiConsole.MarkupLine($"[blue]{Cipher.Decrypt(file.Content, file.Key ?? 0)}[/]"); 
+            return;
+              
+                          
+        }
+        AnsiConsole.MarkupLine($"[blue]{file.Content}[/]");
+        
+       
+    }
+
+ 
+
+    private void Decrypt(string arg)
+    {
+        var file = GetVisibleFiles()
+            .FirstOrDefault(f => f.Path.Split('/').Last() == arg);
+        
+        if (file == null)
+        {
+            AnsiConsole.MarkupLine("[red]File not found[/]");
+            return;
+        }
+        if (state.UnlockedFiles.Contains(file.Path))
+        {
+            AnsiConsole.MarkupLine("[red]Already decrypted[/]");
+            return;
+        }
+       
+        AnsiConsole.Markup("[green]Input Key > [/]");
+        
+        
+
+        if (!int.TryParse(Console.ReadLine(), out int keyDec))
+        {
+            AnsiConsole.MarkupLine("[red]Invalid key!!!![/]");
+            return;
+        }
+
+        if (file.Key == keyDec)
+        {
+            state.UnlockedFiles.Add(file.Path);
+            state.FoundKeys.Add(keyDec.ToString());
+            state.Score++;
+            CheckLevelUp();
+        }
+
+        AnsiConsole.MarkupLine($"[blue]{Cipher.Decrypt(file.Content, keyDec)}[/]");
+        
+            
+    }
+
+
+    
 
     private void ShowStatus()
     {
+        var table = new Table();
 
+        table.Border(TableBorder.Rounded);
+        table.AddColumn("Property");
+        table.AddColumn("Value");
 
-        Console.WriteLine("\n--- STATUS ---");
-        Console.WriteLine($"Server       : {state.CurrentServer}");
-        Console.WriteLine($"Directory    : {state.CurrentDir}");
-        Console.WriteLine($"Level        : {state.Level}");
-        Console.WriteLine($"Score        : {state.Score}");
+        table.AddRow("Server", state.CurrentServer);
+        table.AddRow("Directory", state.CurrentDir);
+        table.AddRow("Level", state.Level.ToString());
+        table.AddRow("Score", state.Score.ToString());
 
-        string keys = state.FoundKeys.Count > 0 ? string.Join(", ", state.FoundKeys) : "—";
-        Console.WriteLine($"Found keys   : {keys}");
+        table.AddRow(
+            "Found Keys",
+            state.FoundKeys.Count > 0
+                ? string.Join(" ", state.FoundKeys)
+                : "-"
+        );
 
+        table.AddRow(
+            "Unlocked Files",
+            state.UnlockedFiles.Count > 0
+                ? string.Join(" ", state.UnlockedFiles)
+                : "-"
+        );
 
+        table.AddRow(
+            "Hacked Servers",
+            state.HackedServers.Count > 0
+                ? string.Join(" ", state.HackedServers)
+                : "-"
+        );
 
-
-
-        if (state.UnlockedFiles.Count > 0)
-            Console.WriteLine($"Decrypted    : {string.Join(", ", state.UnlockedFiles)}");
-        else
-            Console.WriteLine($"Decrypted    : —");
-
+        AnsiConsole.Write(table);
     }
 
     private List<Server> GetVisibleServers()
@@ -383,7 +406,9 @@ public class Game
                 ctx.Status("Compiling report...");
                 Thread.Sleep(1000);
             });
-
+        
+        
+        
         AnsiConsole.Markup($"\n[green]Servers:[/] ");
         foreach (var server in GetVisibleServers())
         {
@@ -393,6 +418,14 @@ public class Game
                 AnsiConsole.Markup($"\n[green]{server.Address} \t STATUS: [/][green]Hacked[/] ");
             else
                 AnsiConsole.Markup($"\n[green]{server.Address} \t STATUS: OPEN[/] ");
+        }
+        var hint = data.Hints
+                .FirstOrDefault(h => h.VisibleFromLevel == state.Level)
+            ;
+        
+        if (hint != null)
+        {
+            AnsiConsole.MarkupLine($"\n\n[yellow]Hint: {hint.Text}[/]");
         }
 
     }
@@ -449,10 +482,6 @@ public class Game
             {
                 AnsiConsole.Markup($"[red]  Server has no password [/]");
             }
-
-          
-            
-
         }
         else
         {
@@ -465,15 +494,16 @@ public class Game
     {
         Console.Clear();
         AnsiConsole.WriteLine("[green] END GAME");
+        running = false;
     }
 
     private void CheckLevelUp()
     {
-        if (state.Score == 4)
+        if (state.Score == 1)
             state.Level = 2;
-        if (state.Score == 8)
+        if (state.Score == 2)
             state.Level = 3;
-        if (state.Score == 12)
+        if (state.Score == 4)
             EndGameMessage();
     }
 

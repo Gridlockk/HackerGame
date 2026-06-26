@@ -4,6 +4,7 @@ public class QuestData
 {
     public string StartServer { get; set; }
     public Dictionary<string, Server> Servers { get; set; }
+    public List<Hint> Hints { get; set; }
     
     public static QuestData Load()
     {
@@ -23,6 +24,11 @@ public class QuestData
     }
 }
 
+public class Hint
+{
+    public string Text { get; set; }
+    public int VisibleFromLevel { get; set; }
+}
 public class Server
 {
     public string Address { get; set; }

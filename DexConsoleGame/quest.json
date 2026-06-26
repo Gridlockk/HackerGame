@@ -16,18 +16,37 @@
           "visibleFromLevel": 1,
           "encrypted": false
         },
-
         {
           "path": "/home/notes.txt",
-          "content": "Ключ шифра = 4",
+          "content": "Старые сообщения используют сдвиг 4.",
+          "visibleFromLevel": 1,
+          "encrypted": false
+        },
+        {
+          "path": "/gate/access.enc",
+          "content": "Xli stivexsv epaecw ywih xli reqi WLEHSA ew e xiqtsvevc eggiww oic.",
+          "visibleFromLevel": 1,
+          "encrypted": true,
+          "cipher": "caesar",
+          "key": 4
+        },
+        {
+          "path": "/users/todo.txt",
+          "content": "Удалить логи\nПроверить связь\nСменить пароль",
           "visibleFromLevel": 1,
           "encrypted": false
         },
 
         {
-          "path": "/gate/access.enc",
-          "content": "Wlehsx mrxs xli tvsbc",
-          "visibleFromLevel": 1,
+          "path": "/backup/chatlog.txt",
+          "content": "Если BLACKOUT сработает, возвращайся к архивам.",
+          "visibleFromLevel": 3,
+          "encrypted": false
+        },
+        {
+          "path": "/backup/old_key.enc",
+          "content": "Xli oi c mw jsyv",
+          "visibleFromLevel": 3,
           "encrypted": true,
           "cipher": "caesar",
           "key": 4
@@ -39,28 +58,59 @@
       "address": "10.0.0.5",
       "visibleFromLevel": 2,
       "locked": true,
-      "password": "shadow123",
+      "password": "SHADOW",
       "unlockServer": "black_rock",
 
       "files": [
         {
-          "path": "/log.txt",
-          "content": "Связной упомянул проект BLACKOUT.",
+          "path": "/logs/network.log",
+          "content": "Связной упомянул: почтовые сообщения используют стандартный сдвиг протокола 6 уровня.",
           "visibleFromLevel": 2,
           "encrypted": false
         },
-
         {
-          "path": "/project.txt",
+          "path": "/projects/admin.txt",
           "content": "Пароль администратора: blackout",
           "visibleFromLevel": 2,
           "encrypted": false
         },
-
         {
           "path": "/admin/passwords.txt",
-          "content": "backup123",
+          "content": "admin123\nbackup123\nshadow123",
           "visibleFromLevel": 2,
+          "encrypted": false
+        },
+        {
+          "path": "/cache/mail.enc",
+          "content": "Znk qke oy yod",
+          "visibleFromLevel": 2,
+          "encrypted": true,
+          "cipher": "caesar",
+          "key": 6
+        },
+        {
+          "path": "/logs/traffic.log",
+          "content": "Узел 172.16.0.9 отвечает.",
+          "visibleFromLevel": 2,
+          "encrypted": false
+        },
+
+        {
+          "path": "/research/incident.log",
+          "content": "После аварии доступ к ядру проекта был ограничен.",
+          "visibleFromLevel": 3,
+          "encrypted": false
+        },
+        {
+          "path": "/research/staff.txt",
+          "content": "Morris\nKing\nAnderson",
+          "visibleFromLevel": 3,
+          "encrypted": false
+        },
+        {
+          "path": "/hidden/root_hint.txt",
+          "content": "Ключ доступа находится на сервере 172.16.0.9.",
+          "visibleFromLevel": 3,
           "encrypted": false
         }
       ]
@@ -75,31 +125,40 @@
 
       "files": [
         {
-          "path": "/keycard.txt",
-          "content": "Ключ шифра = 7",
+          "path": "/security/keycard.txt",
+          "content": "Ключ шифрования = 7",
           "visibleFromLevel": 3,
           "encrypted": false
         },
-
         {
-          "path": "/truth.enc",
-          "content": "Aop zljyla pz ylhssf pu fvb.",
+          "path": "/vault/report.txt",
+          "content": "Проект был закрыт три года назад.",
+          "visibleFromLevel": 3,
+          "encrypted": false
+        },
+        {
+          "path": "/vault/root.key",
+          "content": "rootaccess",
+          "visibleFromLevel": 3,
+          "encrypted": false
+        },
+        {
+          "path": "/vault/truth.enc",
+          "content": "Qeb ArgoDyne Corporation terminated Project BLACKOUT in 2018 after unexplained signal interference spread through every test node. ████ ERROR ████ static detected ████ transmission lost ████",
           "visibleFromLevel": 3,
           "encrypted": true,
           "cipher": "caesar",
           "key": 7
         },
-
         {
-          "path": "/vault/report.txt",
-          "content": "Финальный отчёт.",
+          "path": "/research/audio.log",
+          "content": "Если ты это слышишь, значит система больше не скрыта.",
           "visibleFromLevel": 3,
           "encrypted": false
         },
-
         {
-          "path": "/vault/root.key",
-          "content": "rootaccess",
+          "path": "/research/final_note.txt",
+          "content": "Некоторые данные лучше никогда не восстанавливать.",
           "visibleFromLevel": 3,
           "encrypted": false
         }
