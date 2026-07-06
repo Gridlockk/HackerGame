@@ -3,7 +3,7 @@ namespace DexConsoleGame;
 
 public class QuestData
 {
-    public string StartServer { get; set; }
+    public string StartServer { get; set; } = "";
     public Dictionary<string, Server> Servers { get; set; } = new(); 
     public List<Hint> Hints { get; set; } = new(); 
     
@@ -37,12 +37,12 @@ public class QuestData
 
 public class Hint
 {
-    public string Text { get; set; }
+    public string Text { get; set; } = "";
     public int VisibleFromLevel { get; set; }
 }
 public class Server
 {
-    public string Address { get; set; }
+    public string Address { get; set; } = "";
     public int VisibleFromLevel { get; set; }
     public bool Locked { get; set; }
 
@@ -54,8 +54,8 @@ public class Server
 
 public class QuestFile
 {
-    public string Path { get; set; }
-    public string Content { get; set; }
+    public string Path { get; set; } = "";
+    public string Content { get; set; } = "";
 
     public int VisibleFromLevel { get; set; }
 

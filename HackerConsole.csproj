@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -12,7 +12,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="bin\Debug\net9.0\quest.json" />
-    </ItemGroup>
+  <None Include="quest\quest.json">
+    <Link>quest.json</Link>
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 
 </Project>

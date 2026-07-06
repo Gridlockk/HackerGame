@@ -28,16 +28,23 @@ public class Game
         running = true;
         while (running)
         {
-            AnsiConsole.Markup($"\n[green]root@{state.CurrentServer} > [/] ");
+            try
+            {
+                AnsiConsole.Markup($"\n[green]root@{state.CurrentServer} > [/] ");
 
-            string input = (Console.ReadLine() ?? "").Trim(); // ?? на случай пустого ввода
+                string input = (Console.ReadLine() ?? "").Trim(); // ?? на случай пустого ввода
 
-           
-            string[] parts = input.Split(' ', 2);
-            string command = parts[0].ToLower(); 
-            string arg = parts.Length > 1 ? parts[1] : "";
-            ExecuteCommand(command, arg);
-            state.Save();
+
+                string[] parts = input.Split(' ', 2);
+                string command = parts[0].ToLower();
+                string arg = parts.Length > 1 ? parts[1] : "";
+                ExecuteCommand(command, arg);
+                state.Save();
+            }
+            catch(Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Ошибка: {Markup.Escape(ex.Message)}[/]");
+            }
         }
     }
 
@@ -165,6 +172,18 @@ public class Game
         AnsiConsole.WriteLine();
         var files = GetVisibleFiles();
         var folders = GetVisibleFolders();
+        
+        foreach (var folder in folders)
+            AnsiConsole.MarkupLine($"[blue]{Markup.Escape(folder)}/[/]");
+
+        foreach (var file in files)
+        {
+            string name = file.Path.Split('/').Last();
+            if (file.Encrypted && !state.UnlockedFiles.Contains(file.Path))
+                AnsiConsole.MarkupLine($"[red][[ENC]] {Markup.Escape(name)}[/]");
+            else
+                AnsiConsole.WriteLine(Markup.Escape(name));
+        }
     }
     
     private void ChangeDir(string arg)

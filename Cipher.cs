@@ -1,41 +1,22 @@
-﻿namespace DexConsoleGame;
+﻿
 public class Cipher
 {
     public static string Decrypt(string text, int key)
     {
-        if (text == null || text == "")
-        {
-            return text;
-        }
+        if (string.IsNullOrEmpty(text))
+            return text ?? "";
 
         string result = "";
-
-        for (int i = 0; i < text.Length; i++)
+        foreach (char c in text)
         {
-            char c = text[i];
-
             if (c >= 'a' && c <= 'z')
             {
-                int pos = c - 'a';
-                pos = pos - key;
-
-                while (pos < 0)
-                {
-                    pos += 26;
-                }
-
+                int pos = ((c - 'a' - key) % 26 + 26) % 26;
                 result += (char)('a' + pos);
             }
             else if (c >= 'A' && c <= 'Z')
             {
-                int pos = c - 'A';
-                pos = pos - key;
-
-                while (pos < 0)
-                {
-                    pos += 26;
-                }
-
+                int pos = ((c - 'A' - key) % 26 + 26) % 26;
                 result += (char)('A' + pos);
             }
             else
@@ -43,7 +24,6 @@ public class Cipher
                 result += c;
             }
         }
-
         return result;
     }
 }
